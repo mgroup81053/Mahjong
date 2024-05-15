@@ -148,55 +148,55 @@ class Tehai:
 
         hai = non_fixed_hais[0]
         if non_fixed_hais.count(hai) >= 3: # Check koutsu
-            new_mentsu_hais = []
+            potential_mentsu_hais = []
             for _ in range(3):
-                new_mentsu_hais.append(non_fixed_hais.pop(non_fixed_hais.index(hai)))
+                potential_mentsu_hais.append(non_fixed_hais.pop(non_fixed_hais.index(hai)))
 
-            new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in new_mentsu_hais])
+            new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
             if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
                 return True
             else:
-                non_fixed_hais += new_mentsu_hais
+                non_fixed_hais += potential_mentsu_hais
             
         if hai.is_suupai(): # Check shuntsu
             if Hai(hai.number-2, hai.mpsz_type) in non_fixed_hais and Hai(hai.number-1, hai.mpsz_type) in non_fixed_hais: # -2, -1, 0
-                new_mentsu_hais = [
+                potential_mentsu_hais = [
                     non_fixed_hais.pop(non_fixed_hais.index(Hai(hai.number-2, hai.mpsz_type))),
                     non_fixed_hais.pop(non_fixed_hais.index(Hai(hai.number-1, hai.mpsz_type))),
                     non_fixed_hais.pop(non_fixed_hais.index(hai)),
                 ]
 
-                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in new_mentsu_hais])
+                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
                 if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
                     return True
                 else:
-                    non_fixed_hais += new_mentsu_hais
+                    non_fixed_hais += potential_mentsu_hais
 
             if Hai(hai.number-1, hai.mpsz_type) in non_fixed_hais and Hai(hai.number+1, hai.mpsz_type) in non_fixed_hais: # -1, 0, +1
-                new_mentsu_hais = [
+                potential_mentsu_hais = [
                     non_fixed_hais.pop(non_fixed_hais.index(Hai(hai.number-1, hai.mpsz_type))),
                     non_fixed_hais.pop(non_fixed_hais.index(hai)),
                     non_fixed_hais.pop(non_fixed_hais.index(Hai(hai.number+1, hai.mpsz_type))),
                 ]
 
-                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in new_mentsu_hais])
+                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
                 if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
                     return True
                 else:
-                    non_fixed_hais += new_mentsu_hais
+                    non_fixed_hais += potential_mentsu_hais
                 
             if Hai(hai.number+1, hai.mpsz_type) in non_fixed_hais and Hai(hai.number+2, hai.mpsz_type) in non_fixed_hais: # 0, +1, +2
-                new_mentsu_hais = [
+                potential_mentsu_hais = [
                     non_fixed_hais.pop(non_fixed_hais.index(hai)),
                     non_fixed_hais.pop(non_fixed_hais.index(Hai(hai.number+1, hai.mpsz_type))),
                     non_fixed_hais.pop(non_fixed_hais.index(Hai(hai.number+2, hai.mpsz_type))),
                 ]
 
-                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in new_mentsu_hais])
+                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
                 if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
                     return True
                 else:
-                    non_fixed_hais += new_mentsu_hais
+                    non_fixed_hais += potential_mentsu_hais
 
         if fixed_toitsu:
             return False
@@ -216,10 +216,10 @@ class Tehai:
 
 class Haiyama:
     def __init__(self, hais: list[Hai]):
-        self.toncha_hai = []
-        self.nancha_hai = []
-        self.shaacha_hai = []
-        self.peicha_hai = []
+        self.toncha_hai: list[Hai] = []
+        self.nancha_hai: list[Hai] = []
+        self.shaacha_hai: list[Hai] = []
+        self.peicha_hai: list[Hai] = []
 
         for _ in range(3):
             self.toncha_hai += [hais.pop(0), hais.pop(0), hais.pop(0), hais.pop(0),]
@@ -254,20 +254,30 @@ class Haiyama:
 
 
 haiyama = Haiyama.random()
-my_hai = sorted(haiyama.toncha_hai)[:-1]
+my_hai = haiyama.toncha_hai
 mpsz = {
     "m": "m",
     "p": "p",
     "s": "s",
     "z": "z",
 }
-import sys
-sys.setrecursionlimit(300)
 is_riichi = False
+first = True
 while True:
-    if haiyama.piipai:
-        tsumo_hai = haiyama.tsumo()
+    if not first:
+        if haiyama.piipai:
+            tsumo_hai = haiyama.tsumo()
+        else:
+            if Tehai(my_hai).is_tenpai():
+                print("ニャンパイ")
+            else:
+                print("ノーテンにゃ")
+    else:
+        tsumo_hai = my_hai[-1]
+        my_hai = my_hai[:-1]
+        first = False
 
+    my_hai.sort()
     print(my_hai, tsumo_hai)
     if Tehai(my_hai).is_completed(tsumo_hai):
         print("ツモにゃー！！！")
@@ -287,16 +297,17 @@ while True:
 
                 if kiru_hai in my_hai:
                     break
-            except KeyError:
+            except (KeyError, ValueError):
                 pass
 
     if kiru_hai.number == 5 and kiru_hai.mpsz_type != "z":
         for i, hai in enumerate(my_hai):
             if hai == kiru_hai and hai.aka == kiru_hai.aka:
                 del my_hai[i]
+                break
     else:
         my_hai.remove(kiru_hai)
-    my_hai.sort()
+
     if Tehai(my_hai).is_tenpai() and not is_riichi:
         print("リーチにゃ！")
         is_riichi = True
