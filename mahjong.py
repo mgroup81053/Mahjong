@@ -265,7 +265,8 @@ import sys
 sys.setrecursionlimit(300)
 is_riichi = False
 while True:
-    tsumo_hai = haiyama.tsumo()
+    if haiyama.piipai:
+        tsumo_hai = haiyama.tsumo()
 
     print(my_hai, tsumo_hai)
     if Tehai(my_hai).is_completed(tsumo_hai):
