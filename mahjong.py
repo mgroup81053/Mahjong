@@ -152,8 +152,8 @@ class Tehai:
             for _ in range(3):
                 potential_mentsu_hais.append(non_fixed_hais.pop(non_fixed_hais.index(hai)))
 
-            new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
-            if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
+            potential_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
+            if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [potential_mentsu], fixed_toitsu):
                 return True
             else:
                 non_fixed_hais += potential_mentsu_hais
@@ -166,8 +166,8 @@ class Tehai:
                     non_fixed_hais.pop(non_fixed_hais.index(hai)),
                 ]
 
-                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
-                if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
+                potential_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
+                if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [potential_mentsu], fixed_toitsu):
                     return True
                 else:
                     non_fixed_hais += potential_mentsu_hais
@@ -179,8 +179,8 @@ class Tehai:
                     non_fixed_hais.pop(non_fixed_hais.index(Hai(hai.number+1, hai.mpsz_type))),
                 ]
 
-                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
-                if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
+                potential_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
+                if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [potential_mentsu], fixed_toitsu):
                     return True
                 else:
                     non_fixed_hais += potential_mentsu_hais
@@ -192,8 +192,8 @@ class Tehai:
                     non_fixed_hais.pop(non_fixed_hais.index(Hai(hai.number+2, hai.mpsz_type))),
                 ]
 
-                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
-                if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
+                potential_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
+                if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [potential_mentsu], fixed_toitsu):
                     return True
                 else:
                     non_fixed_hais += potential_mentsu_hais
@@ -212,6 +212,8 @@ class Tehai:
         non_fixed_hais = self.non_naki_hais+[last_hai]
         return self._is_normal_completed(non_fixed_hais, self.nakis, [])
 
+    def tehai_yaku(self, agari_hai: Hai):
+        ...
 
 
 class Haiyama:
@@ -281,6 +283,7 @@ while True:
     print(my_hai, tsumo_hai)
     if Tehai(my_hai).is_completed(tsumo_hai):
         print("ツモにゃー！！！")
+        tehai_yaku = Tehai(my_hai).tehai_yaku(tsumo_hai)
         quit()
     my_hai.append(tsumo_hai)
 
