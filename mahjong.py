@@ -30,7 +30,9 @@ class Hai:
     def __hash__(self):
         return hash((self.number, self.mpsz_type, self.aka))
 
-    def every_hais(): # No akas
+    def every_hais():
+        """No akas"""
+
         return [
             Hai(1, "m"), Hai(2, "m"), Hai(3, "m"), Hai(4, "m"), Hai(5, "m"), Hai(6, "m"), Hai(7, "m"), Hai(8, "m"), Hai(9, "m"),
             Hai(1, "p"), Hai(2, "p"), Hai(3, "p"), Hai(4, "p"), Hai(5, "p"), Hai(6, "p"), Hai(7, "p"), Hai(8, "p"), Hai(9, "p"),
@@ -92,12 +94,14 @@ class Hai:
     def is_jihai(self):
         return self.mpsz_type == "z"
     
-    def __eq__(self, other): # Normal and aka are the same
+    def __eq__(self, other):
+        """Normal and aka are the same"""
+        
         if isinstance(other, Hai):
             return (self.number, self.mpsz_type) == (other.number, other.mpsz_type)
         
-class Naki_hai_info:
-    none = 0
+class Pai_position:
+    tehai = 0
     tedashi = 1
     shimocha = 2
     toimen = 3
@@ -105,12 +109,12 @@ class Naki_hai_info:
     kakan = 5
 
 class Mentsu:
-    def __init__(self, naki_type: Naki_type, hais_with_info: list[tuple[Hai, Naki_hai_info]]):
+    def __init__(self, naki_type: Naki_type, pai_positions: list[tuple[Hai, Pai_position]]):
         self.naki_type = naki_type
-        self.hais_with_info = hais_with_info
+        self.pai_positions = pai_positions
 
     def __repr__(self):
-        return repr([hai for hai, info in self.hais_with_info])
+        return repr([hai for hai, info in self.pai_positions])
 
 class Naki_hai_type:
     def __init__(self, naki_type: Naki_type, is_tedashi):
@@ -118,7 +122,8 @@ class Naki_hai_type:
         self.is_tedashi = is_tedashi
 
 class Tehai:
-    # 13mai
+    """13 pais"""
+
     def __init__(self, non_naki_hais: list[Hai], nakis: list[Mentsu] = []):
         self.non_naki_hais = non_naki_hais
         self.nakis = nakis
@@ -126,7 +131,7 @@ class Tehai:
     def is_tenpai(self):
         for hai in set(Hai.every_hais()):
             if self.is_completed(hai):
-                entire_hais = self.non_naki_hais + sum([[hai for hai, info in naki.hais_with_info] for naki in self.nakis], [])
+                entire_hais = self.non_naki_hais + sum([[hai for hai, info in naki.pai_positions] for naki in self.nakis], [])
                 return entire_hais.count(hai) != 4
             
         return False
@@ -152,8 +157,8 @@ class Tehai:
             for _ in range(3):
                 potential_mentsu_hais.append(non_fixed_hais.pop(non_fixed_hais.index(hai)))
 
-            potential_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
-            if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [potential_mentsu], fixed_toitsu):
+            new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Pai_position.tehai) for new_mentsu_hai in potential_mentsu_hais])
+            if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
                 return True
             else:
                 non_fixed_hais += potential_mentsu_hais
@@ -166,8 +171,8 @@ class Tehai:
                     non_fixed_hais.pop(non_fixed_hais.index(hai)),
                 ]
 
-                potential_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
-                if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [potential_mentsu], fixed_toitsu):
+                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Pai_position.tehai) for new_mentsu_hai in potential_mentsu_hais])
+                if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
                     return True
                 else:
                     non_fixed_hais += potential_mentsu_hais
@@ -179,8 +184,8 @@ class Tehai:
                     non_fixed_hais.pop(non_fixed_hais.index(Hai(hai.number+1, hai.mpsz_type))),
                 ]
 
-                potential_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
-                if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [potential_mentsu], fixed_toitsu):
+                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Pai_position.tehai) for new_mentsu_hai in potential_mentsu_hais])
+                if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
                     return True
                 else:
                     non_fixed_hais += potential_mentsu_hais
@@ -192,8 +197,8 @@ class Tehai:
                     non_fixed_hais.pop(non_fixed_hais.index(Hai(hai.number+2, hai.mpsz_type))),
                 ]
 
-                potential_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Naki_hai_info.none) for new_mentsu_hai in potential_mentsu_hais])
-                if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [potential_mentsu], fixed_toitsu):
+                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Pai_position.tehai) for new_mentsu_hai in potential_mentsu_hais])
+                if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
                     return True
                 else:
                     non_fixed_hais += potential_mentsu_hais
@@ -212,7 +217,12 @@ class Tehai:
         non_fixed_hais = self.non_naki_hais+[last_hai]
         return self._is_normal_completed(non_fixed_hais, self.nakis, [])
 
-    def tehai_yaku(self, agari_hai: Hai):
+    def tehai_yaku(self, agari_hai: Hai, pai_position: Pai_position):
+        """Yaku that is applied only by the pais and do not rely on the bakyou"""
+
+        if False: # TODO: Yakuman
+            ...
+        
         ...
 
 
@@ -316,7 +326,7 @@ while True:
         is_riichi = True
 
 
-# Todo
+# TODO
 # 1. 손패 역 구현
 # 2. 4인 구현
 # 3. 울기 구현
