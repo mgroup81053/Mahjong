@@ -358,8 +358,10 @@ while True:
     if Tehai(my_hai).is_completed(tsumo_hai):
         print("ツモにゃー！！！")
         tehai_yaku = Tehai(my_hai).tehai_yaku(tsumo_hai, Pai_position.tehai)
-        while 
-        quit()
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    quit()
     my_hai.append(tsumo_hai)
 
     if is_riichi:
