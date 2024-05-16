@@ -1,7 +1,7 @@
 from random import shuffle
 import pygame
 
-class Naki_type:
+class NakiType:
     none = 0
     chi = 1
     pon = 2
@@ -99,7 +99,7 @@ class Hai:
         if isinstance(other, Hai):
             return (self.number, self.mpsz_type) == (other.number, other.mpsz_type)
         
-class Pai_position:
+class PaiPosition:
     tehai = 0
     tedashi = 1
     shimocha = 2
@@ -108,15 +108,15 @@ class Pai_position:
     kakan = 5
 
 class Mentsu:
-    def __init__(self, naki_type: Naki_type, pai_positions: list[tuple[Hai, Pai_position]]):
+    def __init__(self, naki_type: NakiType, pai_positions: list[tuple[Hai, PaiPosition]]):
         self.naki_type = naki_type
         self.pai_positions = pai_positions
 
     def __repr__(self):
         return repr([hai for hai, info in self.pai_positions])
 
-class Naki_hai_type:
-    def __init__(self, naki_type: Naki_type, is_tedashi):
+class NakiHaiType:
+    def __init__(self, naki_type: NakiType, is_tedashi):
         self.naki_type = naki_type
         self.is_tedashi = is_tedashi
 
@@ -156,7 +156,7 @@ class Tehai:
             for _ in range(3):
                 potential_mentsu_hais.append(non_fixed_hais.pop(non_fixed_hais.index(hai)))
 
-            new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Pai_position.tehai) for new_mentsu_hai in potential_mentsu_hais])
+            new_fixed_mentsu = Mentsu(NakiType.none, [(new_mentsu_hai, PaiPosition.tehai) for new_mentsu_hai in potential_mentsu_hais])
             if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
                 return True
             else:
@@ -170,7 +170,7 @@ class Tehai:
                     non_fixed_hais.pop(non_fixed_hais.index(hai)),
                 ]
 
-                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Pai_position.tehai) for new_mentsu_hai in potential_mentsu_hais])
+                new_fixed_mentsu = Mentsu(NakiType.none, [(new_mentsu_hai, PaiPosition.tehai) for new_mentsu_hai in potential_mentsu_hais])
                 if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
                     return True
                 else:
@@ -183,7 +183,7 @@ class Tehai:
                     non_fixed_hais.pop(non_fixed_hais.index(Hai(hai.number+1, hai.mpsz_type))),
                 ]
 
-                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Pai_position.tehai) for new_mentsu_hai in potential_mentsu_hais])
+                new_fixed_mentsu = Mentsu(NakiType.none, [(new_mentsu_hai, PaiPosition.tehai) for new_mentsu_hai in potential_mentsu_hais])
                 if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
                     return True
                 else:
@@ -196,7 +196,7 @@ class Tehai:
                     non_fixed_hais.pop(non_fixed_hais.index(Hai(hai.number+2, hai.mpsz_type))),
                 ]
 
-                new_fixed_mentsu = Mentsu(Naki_type.none, [(new_mentsu_hai, Pai_position.tehai) for new_mentsu_hai in potential_mentsu_hais])
+                new_fixed_mentsu = Mentsu(NakiType.none, [(new_mentsu_hai, PaiPosition.tehai) for new_mentsu_hai in potential_mentsu_hais])
                 if self._is_normal_completed(non_fixed_hais, fixed_mentsus + [new_fixed_mentsu], fixed_toitsu):
                     return True
                 else:
@@ -216,7 +216,7 @@ class Tehai:
         non_fixed_hais = self.non_naki_hais+[last_hai]
         return self._is_normal_completed(non_fixed_hais, self.nakis, [])
 
-    def tehai_yaku(self, agari_hai: Hai, pai_position: Pai_position):
+    def tehai_yaku(self, agari_hai: Hai, pai_position: PaiPosition):
         """Yaku that is applied only by the pais and do not rely on the bakyou"""
 
         if False: # TODO: Yakuman
@@ -271,7 +271,6 @@ pygame.init()
 # https://stackoverflow.com/questions/46390231/how-can-i-create-a-text-input-box-with-pygame
 FONT = pygame.font.Font(None, 32)
 class InputBox:
-
     def __init__(self, x, y, w, h, text=''):
         self.rect = pygame.Rect(x, y, w, h)
         self.text = text
@@ -293,26 +292,6 @@ class InputBox:
             self.txt_surface = FONT.render(self.text, True, self.color)
             
             pygame.display.update()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -357,7 +336,7 @@ while True:
 
     if Tehai(my_hai).is_completed(tsumo_hai):
         print("ツモにゃー！！！")
-        tehai_yaku = Tehai(my_hai).tehai_yaku(tsumo_hai, Pai_position.tehai)
+        tehai_yaku = Tehai(my_hai).tehai_yaku(tsumo_hai, PaiPosition.tehai)
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
