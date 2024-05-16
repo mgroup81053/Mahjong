@@ -1,4 +1,5 @@
 from random import shuffle
+import pygame
 
 class Naki_type:
     none = 0
@@ -31,13 +32,11 @@ class Hai:
         return hash((self.number, self.mpsz_type, self.aka))
 
     def every_hais():
-        """No akas"""
-
         return [
-            Hai(1, "m"), Hai(2, "m"), Hai(3, "m"), Hai(4, "m"), Hai(5, "m"), Hai(6, "m"), Hai(7, "m"), Hai(8, "m"), Hai(9, "m"),
-            Hai(1, "p"), Hai(2, "p"), Hai(3, "p"), Hai(4, "p"), Hai(5, "p"), Hai(6, "p"), Hai(7, "p"), Hai(8, "p"), Hai(9, "p"),
-            Hai(1, "s"), Hai(2, "s"), Hai(3, "s"), Hai(4, "s"), Hai(5, "s"), Hai(6, "s"), Hai(7, "s"), Hai(8, "s"), Hai(9, "s"),
-            Hai(1, "z"), Hai(2, "z"), Hai(3, "z"), Hai(4, "z"), Hai(5, "z"), Hai(6, "z"), Hai(7, "z"), Hai(8, "z"), Hai(9, "z"),
+            Hai(1, "m"), Hai(2, "m"), Hai(3, "m"), Hai(4, "m"), Hai(5, "m"), Hai(5, "m", aka=True), Hai(6, "m"), Hai(7, "m"), Hai(8, "m"), Hai(9, "m"),
+            Hai(1, "p"), Hai(2, "p"), Hai(3, "p"), Hai(4, "p"), Hai(5, "p"), Hai(5, "p", aka=True), Hai(6, "p"), Hai(7, "p"), Hai(8, "p"), Hai(9, "p"),
+            Hai(1, "s"), Hai(2, "s"), Hai(3, "s"), Hai(4, "s"), Hai(5, "s"), Hai(5, "s", aka=True), Hai(6, "s"), Hai(7, "s"), Hai(8, "s"), Hai(9, "s"),
+            Hai(1, "z"), Hai(2, "z"), Hai(3, "z"), Hai(4, "z"), Hai(5, "z"), Hai(6, "z"), Hai(7, "z"),
         ]
 
 
@@ -265,6 +264,64 @@ class Haiyama:
 
 
 
+
+
+pygame.init()
+
+# https://stackoverflow.com/questions/46390231/how-can-i-create-a-text-input-box-with-pygame
+FONT = pygame.font.Font(None, 32)
+class InputBox:
+
+    def __init__(self, x, y, w, h, text=''):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.text = text
+        self.color = pygame.Color("lightskyblue3")
+        self.txt_surface = FONT.render(text, True, self.color)
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
+                print(self.text)
+                temp = self.text
+                self.text = ""
+                return temp
+            elif event.key == pygame.K_BACKSPACE:
+                self.text = self.text[:-1]
+            else:
+                self.text += event.unicode
+            # Re-render the text.
+            self.txt_surface = FONT.render(self.text, True, self.color)
+            
+            pygame.display.update()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+image_for = {}
+for hai in Hai.every_hais():
+    image_for[hai] = pygame.image.load(f"./images/{repr(hai)}.png")
+
 haiyama = Haiyama.random()
 my_hai = haiyama.toncha_hai
 mpsz = {
@@ -290,10 +347,18 @@ while True:
         first = False
 
     my_hai.sort()
-    print(my_hai, tsumo_hai)
+
+    screen = pygame.display.set_mode((800,700))
+    for i, hai in enumerate(my_hai):
+        screen.blit(pygame.transform.scale(image_for[hai], (60, 90)), (i*50, 0))
+    screen.blit(pygame.transform.scale(image_for[tsumo_hai], (60, 90)), (i*50 + 70, 0))
+    input_box = InputBox(100, 500, 140, 32)
+    pygame.display.update()
+
     if Tehai(my_hai).is_completed(tsumo_hai):
         print("ツモにゃー！！！")
-        tehai_yaku = Tehai(my_hai).tehai_yaku(tsumo_hai)
+        tehai_yaku = Tehai(my_hai).tehai_yaku(tsumo_hai, Pai_position.tehai)
+        while 
         quit()
     my_hai.append(tsumo_hai)
 
@@ -301,17 +366,29 @@ while True:
         kiru_hai = tsumo_hai
     else:
         while True:
-            try:
-                _kiru_hai = input()
-                if _kiru_hai[0] == "0":
-                    kiru_hai = Hai(5, mpsz[_kiru_hai[1]], aka = True)
-                else:
-                    kiru_hai = Hai(int(_kiru_hai[0]), mpsz[_kiru_hai[1]])
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    quit()
 
-                if kiru_hai in my_hai:
-                    break
-            except (KeyError, ValueError):
-                pass
+                _kiru_hai = input_box.handle_event(event)
+
+                if _kiru_hai == None:
+                    continue
+
+                try:
+                    if _kiru_hai[0] == "0":
+                        kiru_hai = Hai(5, mpsz[_kiru_hai[1]], aka = True)
+                    else:
+                        kiru_hai = Hai(int(_kiru_hai[0]), mpsz[_kiru_hai[1]])
+
+                    if kiru_hai in my_hai:
+                        break
+                except (KeyError, ValueError, IndexError):
+                    pass
+            else:
+                continue
+
+            break
 
     if kiru_hai.number == 5 and kiru_hai.mpsz_type != "z":
         for i, hai in enumerate(my_hai):
