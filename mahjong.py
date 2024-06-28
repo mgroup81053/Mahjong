@@ -101,7 +101,7 @@ Hai.every_hais = [
             Hai(1, "m"), Hai(2, "m"), Hai(3, "m"), Hai(4, "m"), Hai(5, "m"), Hai(5, "m", aka=True), Hai(6, "m"), Hai(7, "m"), Hai(8, "m"), Hai(9, "m"),
             Hai(1, "p"), Hai(2, "p"), Hai(3, "p"), Hai(4, "p"), Hai(5, "p"), Hai(5, "p", aka=True), Hai(6, "p"), Hai(7, "p"), Hai(8, "p"), Hai(9, "p"),
             Hai(1, "s"), Hai(2, "s"), Hai(3, "s"), Hai(4, "s"), Hai(5, "s"), Hai(5, "s", aka=True), Hai(6, "s"), Hai(7, "s"), Hai(8, "s"), Hai(9, "s"),
-            Hai(1, "z"), Hai(2, "z"), Hai(3, "z"), Hai(4, "z"), Hai(5, "z"), Hai(5, "z", aka=True), Hai(6, "z"), Hai(7, "z"),
+            Hai(1, "z"), Hai(2, "z"), Hai(3, "z"), Hai(4, "z"), Hai(5, "z"), Hai(5, "z"), Hai(6, "z"), Hai(7, "z"),
     ]
 
 Hai.every_hai_quartets = [
@@ -490,7 +490,7 @@ if __name__ == "__main__":
 
 
     image_for = {}
-    for hai in Hai.every_hais():
+    for hai in Hai.every_hais:
         image_for[hai] = pygame.image.load(f"./images/{repr(hai)}.png")
 
     haiyama = Haiyama.random()
