@@ -1,5 +1,6 @@
 from random import shuffle
 from typing import Literal, Self
+import pygame
 
 class MentsuType:
     tehai = 0
@@ -151,7 +152,8 @@ class HaiPosition:
     toimen = 4
     kamicha = 5
     kakan = 6
-    kawa = 7
+    tsumo_kawa = 7
+    tedashi_kawa = 8
 
 class Mentsu:
     def __init__(self, mentsu_type: MentsuType, hais_with_pos: list[tuple[Hai, HaiPosition]]):
@@ -452,7 +454,45 @@ class Haiyama:
 
 
 
+
+
+
 if __name__ == "__main__":
+    pygame.init()
+
+    # https://stackoverflow.com/questions/46390231/how-can-i-create-a-text-input-box-with-pygame
+    FONT = pygame.font.Font(None, 32)
+    class InputBox:
+        def __init__(self, x, y, w, h, text=''):
+            self.rect = pygame.Rect(x, y, w, h)
+            self.text = text
+            self.color = pygame.Color("lightskyblue3")
+            self.txt_surface = FONT.render(text, True, self.color)
+
+        def handle_event(self, event):
+            if event.type == pygame.KEYDOWN:
+                if event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
+                    print(self.text)
+                    temp = self.text
+                    self.text = ""
+                    return temp
+                elif event.key == pygame.K_BACKSPACE:
+                    self.text = self.text[:-1]
+                else:
+                    self.text += event.unicode
+                # Re-render the text.
+                self.txt_surface = FONT.render(self.text, True, self.color)
+                
+                pygame.display.update()
+
+
+
+
+
+    image_for = {}
+    for hai in Hai.every_hais():
+        image_for[hai] = pygame.image.load(f"./images/{repr(hai)}.png")
+
     haiyama = Haiyama.random()
     my_hai = haiyama.toncha_hai
     my_hai = [
@@ -480,42 +520,62 @@ if __name__ == "__main__":
             else:
                 if Tehai(my_hai).is_tenpai():
                     print("ニャンパイ")
-                    quit()
                 else:
                     print("ノーテンにゃ")
-                    quit()
         else:
             tsumo_hai = my_hai[-1]
             my_hai = my_hai[:-1]
 
         my_hai.sort()
-        print(my_hai, tsumo_hai)
+
+        screen = pygame.display.set_mode((800,700))
+        for i, hai in enumerate(my_hai):
+            screen.blit(pygame.transform.scale(image_for[hai], (60, 90)), (i*50, 0))
+        screen.blit(pygame.transform.scale(image_for[tsumo_hai], (60, 90)), (i*50 + 70, 0))
+        input_box = InputBox(100, 500, 140, 32)
+        pygame.display.update()
+
         if Tehai(my_hai).is_completed(tsumo_hai):
             print("ツモにゃー！！！")
-            tehai_yaku = Tehai(my_hai).tehai_yaku(tsumo_hai)
-            quit()
+            tehai_yaku = Tehai(my_hai).tehai_yaku(tsumo_hai, HaiPosition.tsumo)
+            while True:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        quit()
         my_hai.append(tsumo_hai)
 
         if is_riichi:
             kiru_hai = tsumo_hai
         else:
             while True:
-                try:
-                    _kiru_hai = input()
-                    number, mpsz_type = _kiru_hai
-                    if _kiru_hai[0] == "0":
-                        kiru_hai = Hai(5, mpsz_type, aka = True)
-                    else:
-                        kiru_hai = Hai(int(number), mpsz_type)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        quit()
 
-                    if kiru_hai in my_hai:
-                        break
-                except (KeyError, ValueError):
-                    pass
+                    _kiru_hai = input_box.handle_event(event)
+
+                    if _kiru_hai == None:
+                        continue
+
+                    try:
+                        number, mpsz_type = _kiru_hai
+                        if _kiru_hai[0] == "0":
+                            kiru_hai = Hai(5, mpsz_type, aka = True)
+                        else:
+                            kiru_hai = Hai(int(_kiru_hai[0]), mpsz_type)
+
+                        if kiru_hai in my_hai:
+                            break
+                    except (KeyError, ValueError):
+                        pass
+                else:
+                    continue
+
+                break
 
         if kiru_hai.number == 5 and kiru_hai.mpsz_type != "z":
             for i, hai in enumerate(my_hai):
-                if hai == kiru_hai and hai.aka == kiru_hai.aka:
+                if hai is kiru_hai:
                     del my_hai[i]
                     break
         else:
