@@ -417,21 +417,21 @@ def possible_jantou_and_mentsu_configurations(jantou: Jantou | None, non_fixed_h
 
 class Haiyama:
     def __init__(self, hais: list[Hai]):
-        self.toncha_hai: list[Hai] = []
-        self.nancha_hai: list[Hai] = []
-        self.shaacha_hai: list[Hai] = []
-        self.peicha_hai: list[Hai] = []
+        self.toncha_hais: list[Hai] = []
+        self.nancha_hais: list[Hai] = []
+        self.shaacha_hais: list[Hai] = []
+        self.peicha_hais: list[Hai] = []
 
         for _ in range(3):
-            self.toncha_hai += [hais.pop(0), hais.pop(0), hais.pop(0), hais.pop(0),]
-            self.nancha_hai += [hais.pop(0), hais.pop(0), hais.pop(0), hais.pop(0),]
-            self.shaacha_hai += [hais.pop(0), hais.pop(0), hais.pop(0), hais.pop(0),]
-            self.peicha_hai += [hais.pop(0), hais.pop(0), hais.pop(0), hais.pop(0),]
+            self.toncha_hais += [hais.pop(0), hais.pop(0), hais.pop(0), hais.pop(0),]
+            self.nancha_hais += [hais.pop(0), hais.pop(0), hais.pop(0), hais.pop(0),]
+            self.shaacha_hais += [hais.pop(0), hais.pop(0), hais.pop(0), hais.pop(0),]
+            self.peicha_hais += [hais.pop(0), hais.pop(0), hais.pop(0), hais.pop(0),]
 
-        self.toncha_hai += [hais.pop(0), hais.pop(3)]
-        self.nancha_hai += [hais.pop(0)]
-        self.shaacha_hai += [hais.pop(0)]
-        self.peicha_hai += [hais.pop(0)]
+        self.toncha_hais += [hais.pop(0), hais.pop(3)]
+        self.nancha_hais += [hais.pop(0)]
+        self.shaacha_hais += [hais.pop(0)]
+        self.peicha_hais += [hais.pop(0)]
 
         self.rinshanpai = [hais.pop(), hais.pop(), hais.pop(), hais.pop()]
         self.dorahyoujihai = [hais[-2], hais[-4], hais[-6], hais[-8], hais[-10]]
@@ -441,7 +441,7 @@ class Haiyama:
         self.piipai = hais[:]
 
     def __repr__(self):
-        return repr([self.toncha_hai, self.nancha_hai, self.shaacha_hai, self.peicha_hai, self.rinshanpai, self.dorahyoujihai, self.dorahyoujihai, self.uradorahyoujihai])
+        return repr([self.toncha_hais, self.nancha_hais, self.shaacha_hais, self.peicha_hais, self.rinshanpai, self.dorahyoujihai, self.dorahyoujihai, self.uradorahyoujihai])
 
     def tsumo(self):
         return self.piipai.pop(0)
@@ -494,23 +494,6 @@ if __name__ == "__main__":
         image_for[hai] = pygame.image.load(f"./images/{repr(hai)}.png")
 
     haiyama = Haiyama.random()
-    my_hai = haiyama.toncha_hai
-    my_hai = [
-        Hai(1, "m"),
-        Hai(1, "m"),
-        Hai(2, "m"),
-        Hai(2, "m"),
-        Hai(3, "m"),
-        Hai(3, "m"),
-        Hai(4, "m"),
-        Hai(4, "m"),
-        Hai(5, "p"),
-        Hai(6, "p"),
-        Hai(7, "p"),
-        Hai(1, "s"),
-        Hai(2, "s"),
-        Hai(1, "z")
-    ]
     is_riichi = False
     first = True
     while True:
@@ -518,31 +501,32 @@ if __name__ == "__main__":
             if haiyama.piipai:
                 tsumo_hai = haiyama.tsumo()
             else:
-                if Tehai(my_hai).is_tenpai():
+                if my_tehai.is_tenpai():
                     print("ニャンパイ")
                 else:
                     print("ノーテンにゃ")
         else:
-            tsumo_hai = my_hai[-1]
-            my_hai = my_hai[:-1]
+            my_tehai = Tehai(haiyama.toncha_hais[:-1])
+            tsumo_hai = haiyama.toncha_hais[-1]
 
-        my_hai.sort()
+        my_tehai.non_naki_hais.sort()
 
         screen = pygame.display.set_mode((800,700))
-        for i, hai in enumerate(my_hai):
+        for i, hai in enumerate(my_tehai.non_naki_hais):
             screen.blit(pygame.transform.scale(image_for[hai], (60, 90)), (i*50, 0))
         screen.blit(pygame.transform.scale(image_for[tsumo_hai], (60, 90)), (i*50 + 70, 0))
         input_box = InputBox(100, 500, 140, 32)
         pygame.display.update()
 
-        if Tehai(my_hai).is_completed(tsumo_hai):
+        if my_tehai.is_completed(tsumo_hai):
             print("ツモにゃー！！！")
-            tehai_yaku = Tehai(my_hai).tehai_yaku(tsumo_hai, HaiPosition.tsumo)
+            tehai_yaku = my_tehai.tehai_yaku(tsumo_hai, HaiPosition.tsumo)
+            print(tehai_yaku)
             while True:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         quit()
-        my_hai.append(tsumo_hai)
+        my_tehai.non_naki_hais.append(tsumo_hai)
 
         if is_riichi:
             kiru_hai = tsumo_hai
@@ -564,7 +548,7 @@ if __name__ == "__main__":
                         else:
                             kiru_hai = Hai(int(_kiru_hai[0]), mpsz_type)
 
-                        if kiru_hai in my_hai:
+                        if kiru_hai in my_tehai.non_naki_hais:
                             break
                     except (KeyError, ValueError):
                         pass
@@ -574,14 +558,14 @@ if __name__ == "__main__":
                 break
 
         if kiru_hai.number == 5 and kiru_hai.mpsz_type != "z":
-            for i, hai in enumerate(my_hai):
+            for i, hai in enumerate(my_tehai.non_naki_hais):
                 if hai is kiru_hai:
-                    del my_hai[i]
+                    del my_tehai.non_naki_hais[i]
                     break
         else:
-            my_hai.remove(kiru_hai)
+            my_tehai.non_naki_hais.remove(kiru_hai)
 
-        if Tehai(my_hai).is_tenpai() and not is_riichi:
+        if my_tehai.is_tenpai() and not is_riichi:
             print("ダブルリーチにゃ！" if first else "リーチにゃ！")
             is_riichi = True
 
