@@ -1,5 +1,6 @@
 from random import shuffle
 from typing import Literal, Self
+from collections import Counter
 import pygame
 
 class MentsuType:
@@ -13,14 +14,14 @@ class MentsuType:
 
 MPSZtype = Literal["m", "p", "s", "z"]
 class Hai:
-    every_hais = list[Self]
-    every_hai_quartets = list[Self]
+    every_hais: list[Self]
+    every_hai_quartets: list[Self]
 
     def __init__(self, number: int, mpsz_type: MPSZtype, aka = False):
         if not (
             mpsz_type == "z" and number in range(1, 7+1)
             or mpsz_type in ("m", "p", "s") and number in range(1, 9+1)):
-            
+
             raise Exception("Invalid Hai")
 
         self.number = number
@@ -34,7 +35,7 @@ class Hai:
             repr_number = "0"
 
         return repr_number + repr_mpsz_type
-    
+
     def __lt__(self, other):
         mpsz_order = ("m", "p", "s", "z")
         if isinstance(other, Hai):
@@ -42,25 +43,25 @@ class Hai:
 
     def __hash__(self):
         return hash((self.number, self.mpsz_type, self.aka))
-    
+
     def routouhais():
         return [hai for hai in Hai.every_hais if hai.number in (1, 9)]
 
     def yaochuuhais():
         return [hai for hai in Hai.every_hais if hai.number in (1, 9) or hai.mpsz_type == "z"]
-    
+
     def chunchanpais():
         return [hai for hai in Hai.every_hais if hai.number in range(2, 8+1) and hai.mpsz_type != "z"]
-    
+
     def suupais():
         return [hai for hai in Hai.every_hais if hai.mpsz_type != "z"]
-    
+
     def jihais():
         return [hai for hai in Hai.every_hais if hai.mpsz_type == "z"]
-    
+
     def green_hais():
         return [hai for hai in Hai.every_hais if hai in (Hai(2, "s"), Hai(3, "s"), Hai(4, "s"), Hai(6, "s"), Hai(8, "s"), Hai(6, "z"))]
-    
+
     def sangenpais():
         return [hai for hai in Hai.every_hais if hai in (Hai(5, "z"), Hai(6, "z"), Hai(7, "z"))]
 
@@ -93,15 +94,15 @@ class Hai:
 
     def __eq__(self, other):
         """Normal and aka are the same"""
-        
+
         if isinstance(other, Hai):
             return (self.number, self.mpsz_type) == (other.number, other.mpsz_type)
 
 Hai.every_hais = [
-            Hai(1, "m"), Hai(2, "m"), Hai(3, "m"), Hai(4, "m"), Hai(5, "m"), Hai(5, "m", aka=True), Hai(6, "m"), Hai(7, "m"), Hai(8, "m"), Hai(9, "m"),
-            Hai(1, "p"), Hai(2, "p"), Hai(3, "p"), Hai(4, "p"), Hai(5, "p"), Hai(5, "p", aka=True), Hai(6, "p"), Hai(7, "p"), Hai(8, "p"), Hai(9, "p"),
-            Hai(1, "s"), Hai(2, "s"), Hai(3, "s"), Hai(4, "s"), Hai(5, "s"), Hai(5, "s", aka=True), Hai(6, "s"), Hai(7, "s"), Hai(8, "s"), Hai(9, "s"),
-            Hai(1, "z"), Hai(2, "z"), Hai(3, "z"), Hai(4, "z"), Hai(5, "z"), Hai(5, "z"), Hai(6, "z"), Hai(7, "z"),
+            Hai(1, "m"), Hai(2, "m"), Hai(3, "m"), Hai(4, "m"), Hai(5, "m"), Hai(6, "m"), Hai(7, "m"), Hai(8, "m"), Hai(9, "m"),
+            Hai(1, "p"), Hai(2, "p"), Hai(3, "p"), Hai(4, "p"), Hai(5, "p"), Hai(6, "p"), Hai(7, "p"), Hai(8, "p"), Hai(9, "p"),
+            Hai(1, "s"), Hai(2, "s"), Hai(3, "s"), Hai(4, "s"), Hai(5, "s"), Hai(6, "s"), Hai(7, "s"), Hai(8, "s"), Hai(9, "s"),
+            Hai(1, "z"), Hai(2, "z"), Hai(3, "z"), Hai(4, "z"), Hai(5, "z"), Hai(6, "z"), Hai(7, "z"),
     ]
 
 Hai.every_hai_quartets = [
@@ -166,12 +167,16 @@ class Mentsu:
 
             raise Exception("Invalid Mentsu")
 
+    def __lt__(self, other):
+        if isinstance(other, Mentsu):
+            return (self.hais_with_pos < other.hais_with_pos)
+
     def hais(self):
         return [hai for hai, pos in self.hais_with_pos]
-    
+
     def is_koutsu_or_kantsu(self):
         return self.is_koutsu() or self.is_kantsu()
-    
+
     def is_ankou_or_ankan(self):
         return (
             self.is_koutsu() and self.mentsu_type == MentsuType.tehai
@@ -188,13 +193,13 @@ class Mentsu:
 
     def is_koutsu(self):
         return len(set(self.hais())) == 1 and not self.is_kantsu()
-    
+
     def is_kantsu(self):
         return self.mentsu_type in (MentsuType.daiminkan, MentsuType.kakan, MentsuType.ankan)
 
     def __repr__(self):
         return repr(self.hais())
-    
+
     def __eq__(self, other):
         if isinstance(other, Mentsu):
             return (
@@ -202,10 +207,17 @@ class Mentsu:
                 and all(self_hai == other_hai and self_pos == other_pos
                     for (self_hai, self_pos), (other_hai, other_pos) in zip(self.hais_with_pos, other.hais_with_pos))
                 )
-    
+
 class Jantou:
     def __init__(self, hais: list[Hai]):
         self.hais = hais
+
+    def __repr__(self):
+        return repr(self.hais)
+
+    def __lt__(self, other):
+        if isinstance(other, Jantou):
+            return self.hais < other.hais
 
 class Configuration:
     # Completed configuration (14 hais)
@@ -223,6 +235,9 @@ class Configuration:
         self.last_hai_with_pos = last_hai_with_pos
         self.is_chitoi = is_chitoi
         self.is_kokushi = is_kokushi
+
+    def __repr__(self):
+        return f"{repr(self.jantou)} / {repr(self.non_naki_mentsus)} / {repr(self.nakis)}"
 
     def is_menzen(self):
         return self.nakis == []
@@ -242,13 +257,13 @@ class Configuration:
 
     def is_tsuuiisou(self):
         return all(hai.is_jihai() for hai in self.hais)
-    
+
     def is_ryuuiisou(self):
         return all(hai.green_hais() for hai in self.hais)
-    
+
     def is_chinroutou(self):
         return all(hai.routouhais() for hai in self.hais)
-    
+
     def is_kokushimusou(self):
         return self.is_kokushi
 
@@ -260,7 +275,7 @@ class Configuration:
 
         return set(Hai.kazehais()).intersection(koutsu_or_kantsu_hais) == 3\
                 and self.jantou.hais[0].is_kazehai()
-    
+
     def is_suukantsu(self):
         return all(naki.mentsu_type in (MentsuType.daiminkan, MentsuType.kakan, MentsuType.ankan) for naki in self.nakis) and len(self.nakis) == 4
 
@@ -309,13 +324,14 @@ class Tehai:
 
         self.non_naki_hais = non_naki_hais
         self.nakis = nakis
+        self.tsumo_hai: Hai | None = None
 
     def every_hais(self):
         return self.non_naki_hais + [sum(naki.hais(), []) for naki in self.nakis]
 
     def is_menzen(self):
         return self.nakis == []
-    
+
     def is_tenpai(self):
         return self.agari_hais()
 
@@ -327,12 +343,12 @@ class Tehai:
                 entire_hais = self.non_naki_hais + sum([[hai for hai, pos in naki.hais_with_pos] for naki in self.nakis], [])
                 if entire_hais.count(hai) != 4:
                     agari_hais.add(hai)
-            
+
         return agari_hais
-    
+
     def is_completed(self, last_hai: Hai):
         return self.is_normal_completed(last_hai) or self.is_chitoi_completed(last_hai) or self.is_kokushi_completed(last_hai)
-    
+
     def is_kokushi_completed(self, last_hai):
         entire_hais = self.every_hais() + [last_hai]
         return all(hai in Hai.yaochuuhais() for hai in entire_hais) and len(set(entire_hais)) == 13
@@ -343,14 +359,15 @@ class Tehai:
 
     def is_normal_completed(self, last_hai):
         non_fixed_hais = self.non_naki_hais + [last_hai]
-        return possible_jantou_and_mentsu_configurations(None, non_fixed_hais)
+        return bool(filter_valid_normal_configurations(get_possible_jantou_and_mentsu_configurations(None, non_fixed_hais)))
 
     def posible_configurations(self, last_hai_with_pos: tuple[Hai, HaiPosition]) -> list[Configuration]:
         last_hai = last_hai_with_pos[0]
         non_fixed_hais = self.non_naki_hais + [last_hai]
 
         if self.is_normal_completed(last_hai):
-            possible_jantou_and_mentsu_configuration = possible_jantou_and_mentsu_configurations(None, non_fixed_hais)
+            possible_jantou_and_mentsu_configuration = sorted([(jantou, sorted(mentsus)) for jantou, mentsus
+                                                               in filter_valid_normal_configurations(get_possible_jantou_and_mentsu_configurations(None, non_fixed_hais))])
 
             return [Configuration(jantou, non_naki_mentsus, self.nakis, last_hai_with_pos) for jantou, non_naki_mentsus in possible_jantou_and_mentsu_configuration]
         elif self.is_chitoi_completed():
@@ -360,7 +377,11 @@ class Tehai:
         else:
             return []
 
-def possible_jantou_and_mentsu_configurations(jantou: Jantou | None, non_fixed_hais: list[Hai]) -> list[tuple[Jantou, list[Mentsu]]]:
+def filter_valid_normal_configurations(configurations: list[tuple[Jantou, list[Mentsu]]]):
+    return [(jantou, mentsus) for jantou, mentsus in configurations
+            if jantou and len(mentsus) == 4 and max(Counter(every_hais := jantou.hais + sum([mentsu.hais() for mentsu in mentsus], [])).values()) <= 4]
+
+def get_possible_jantou_and_mentsu_configurations(jantou: Jantou | None, non_fixed_hais: list[Hai]) -> list[tuple[Jantou, list[Mentsu]]]:
     if len(non_fixed_hais) == 0:
         return []
     elif not jantou and len(non_fixed_hais) == 2 and len(set(non_fixed_hais)) == 1:
@@ -377,18 +398,19 @@ def possible_jantou_and_mentsu_configurations(jantou: Jantou | None, non_fixed_h
 
     non_fixed_hais.sort()
     hai = non_fixed_hais[0]
+    possible_jantou_and_mentsu_configurations = []
     if non_fixed_hais.count(hai) >= 3: # Check koutsu
         potential_mentsu_hais = []
         for _ in range(3):
             potential_mentsu_hais.append(non_fixed_hais.pop(non_fixed_hais.index(hai)))
 
         potential_fixed_mentsu = Mentsu(MentsuType.tehai, [(potential_mentsu_hai, HaiPosition.tehai) for potential_mentsu_hai in potential_mentsu_hais])
-        if (left_possible_mentsu_configurations := possible_jantou_and_mentsu_configurations(jantou, non_fixed_hais[:])):
-            return [(jantou, [potential_fixed_mentsu] + mentsus) for jantou, mentsus in left_possible_mentsu_configurations]
-        else:
-            non_fixed_hais += potential_mentsu_hais # Undo
+        if (possible_remainder_mentsu_configurations := get_possible_jantou_and_mentsu_configurations(jantou, non_fixed_hais[:])):
+            possible_jantou_and_mentsu_configurations += [(jantou, [potential_fixed_mentsu] + mentsus) for jantou, mentsus in possible_remainder_mentsu_configurations]
 
-    if hai in Hai.suupais(): # Check shuntsu 
+        non_fixed_hais += potential_mentsu_hais # Undo
+
+    if hai in Hai.suupais(): # Check shuntsu
         if hai.number < 8 and Hai(hai.number+1, hai.mpsz_type) in non_fixed_hais and Hai(hai.number+2, hai.mpsz_type) in non_fixed_hais: # 0, +1, +2
             potential_mentsu_hais = [
                 non_fixed_hais.pop(non_fixed_hais.index(hai)),
@@ -398,22 +420,20 @@ def possible_jantou_and_mentsu_configurations(jantou: Jantou | None, non_fixed_h
 
             potential_fixed_mentsu = Mentsu(MentsuType.tehai, [(potential_mentsu_hai, HaiPosition.tehai) for potential_mentsu_hai in potential_mentsu_hais])
 
-            if (left_possible_mentsu_configurations := possible_jantou_and_mentsu_configurations(jantou, non_fixed_hais[:])):
-                return [(jantou, [potential_fixed_mentsu] + mentsus) for jantou, mentsus in left_possible_mentsu_configurations]
-            else:
-                non_fixed_hais += potential_mentsu_hais # Undo
+            if (possible_remainder_mentsu_configurations := get_possible_jantou_and_mentsu_configurations(jantou, non_fixed_hais[:])):
+                possible_jantou_and_mentsu_configurations += [(jantou, [potential_fixed_mentsu] + mentsus) for jantou, mentsus in possible_remainder_mentsu_configurations]
 
-    if jantou:
-        return []
-    else:
-        if non_fixed_hais.count(hai) >= 2:
-            fixed_jantou = Jantou([
-                non_fixed_hais.pop(non_fixed_hais.index(hai)),
-                non_fixed_hais.pop(non_fixed_hais.index(hai)),
-            ])
-            return possible_jantou_and_mentsu_configurations(fixed_jantou, non_fixed_hais[:])
-        else:
-            return []
+            non_fixed_hais += potential_mentsu_hais # Undo
+
+    if not jantou and non_fixed_hais.count(hai) >= 2: # Check jantou
+        fixed_jantou = Jantou([
+            non_strictly_extract(hai, non_fixed_hais),
+            non_strictly_extract(hai, non_fixed_hais),
+        ])
+        possible_jantou_and_mentsu_configurations += get_possible_jantou_and_mentsu_configurations(fixed_jantou, non_fixed_hais[:])
+
+
+    return possible_jantou_and_mentsu_configurations
 
 class Haiyama:
     def __init__(self, hais: list[Hai]):
@@ -452,6 +472,14 @@ class Haiyama:
 
         return Haiyama(hais)
 
+def non_strictly_extract(target, list: list):
+    return list.pop(list.index(target))
+
+def strictly_extract(target, list: list):
+    for i, element in enumerate(list):
+        if element is target:
+            return list.pop(i)
+
 
 
 
@@ -460,38 +488,31 @@ class Haiyama:
 if __name__ == "__main__":
     pygame.init()
 
-    # https://stackoverflow.com/questions/46390231/how-can-i-create-a-text-input-box-with-pygame
-    FONT = pygame.font.Font(None, 32)
-    class InputBox:
-        def __init__(self, x, y, w, h, text=''):
-            self.rect = pygame.Rect(x, y, w, h)
-            self.text = text
-            self.color = pygame.Color("lightskyblue3")
-            self.txt_surface = FONT.render(text, True, self.color)
+    class HashableRect:
+        def __init__(self, x, y, width, height):
+            self.x = x
+            self.y = y
+            self.width = width
+            self.height = height
 
-        def handle_event(self, event):
-            if event.type == pygame.KEYDOWN:
-                if event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
-                    print(self.text)
-                    temp = self.text
-                    self.text = ""
-                    return temp
-                elif event.key == pygame.K_BACKSPACE:
-                    self.text = self.text[:-1]
-                else:
-                    self.text += event.unicode
-                # Re-render the text.
-                self.txt_surface = FONT.render(self.text, True, self.color)
-                
-                pygame.display.update()
+        def __hash__(self):
+            return hash((self.x, self.y, self.width, self.height))
+
+        def collide_point(self, pos):
+            return self.convert_to_rect().collidepoint(pos)
+
+        def convert_to_rect(self):
+            return pygame.Rect(self.x, self.y, self.width, self.height)
 
 
 
 
 
     image_for = {}
-    for hai in Hai.every_hais:
-        image_for[hai] = pygame.image.load(f"./images/{repr(hai)}.png")
+    for hai in set(Hai.every_hai_quartets):
+        image_for[hai] = pygame.transform.scale(
+            pygame.image.load(f"./images/{repr(hai)}.png")
+            , (60, 90))
 
     haiyama = Haiyama.random()
     is_riichi = False
@@ -505,73 +526,86 @@ if __name__ == "__main__":
                     print("ニャンパイ")
                 else:
                     print("ノーテンにゃ")
+
+                break
         else:
             my_tehai = Tehai(haiyama.toncha_hais[:-1])
             tsumo_hai = haiyama.toncha_hais[-1]
 
+        my_tehai.tsumo_hai = tsumo_hai
         my_tehai.non_naki_hais.sort()
 
         screen = pygame.display.set_mode((800,700))
+        hai_for_hashable_rect: dict[HashableRect, Hai] = {}
         for i, hai in enumerate(my_tehai.non_naki_hais):
-            screen.blit(pygame.transform.scale(image_for[hai], (60, 90)), (i*50, 0))
-        screen.blit(pygame.transform.scale(image_for[tsumo_hai], (60, 90)), (i*50 + 70, 0))
-        input_box = InputBox(100, 500, 140, 32)
+            (x, y) = (i*50, 0)
+            rect = HashableRect(x, y, 60, 90)
+            screen.blit(image_for[hai], (x, y))
+            hai_for_hashable_rect[rect] = hai
+        (x, y) = (i*50 + 70, 0)
+        rect = HashableRect(x, y, 60, 90)
+        screen.blit(image_for[tsumo_hai], (x, y))
+        hai_for_hashable_rect[rect] = tsumo_hai
         pygame.display.update()
 
         if my_tehai.is_completed(tsumo_hai):
             print("ツモにゃー！！！")
-            tehai_yaku = my_tehai.tehai_yaku(tsumo_hai, HaiPosition.tsumo)
-            print(tehai_yaku)
-            while True:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        quit()
+            for configuration in my_tehai.posible_configurations((tsumo_hai, HaiPosition.tsumo)):
+                print(configuration)
+            # tehai_yaku = my_tehai.tehai_yaku()
+            # print(tehai_yaku)
+            break
+
         my_tehai.non_naki_hais.append(tsumo_hai)
 
         if is_riichi:
-            kiru_hai = tsumo_hai
+            kiru_hai = strictly_extract(tsumo_hai, my_tehai.non_naki_hais)
         else:
             while True:
+                kiru_yotei_no_hai = None
+
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         quit()
 
-                    _kiru_hai = input_box.handle_event(event)
+                    # https://stackoverflow.com/questions/10990137/pygame-mouse-clicking-detection
+                    # handle MOUSEBUTTONUP
+                    elif event.type == pygame.MOUSEBUTTONUP:
+                        pos = pygame.mouse.get_pos()
 
-                    if _kiru_hai == None:
-                        continue
+                        # get a list of all sprites that are under the mouse cursor
+                        clicked_hais = [
+                            hai for hashable_rect, hai in hai_for_hashable_rect.items()
+                            if hashable_rect.collide_point(pos)]
 
-                    try:
-                        number, mpsz_type = _kiru_hai
-                        if _kiru_hai[0] == "0":
-                            kiru_hai = Hai(5, mpsz_type, aka = True)
-                        else:
-                            kiru_hai = Hai(int(_kiru_hai[0]), mpsz_type)
-
-                        if kiru_hai in my_tehai.non_naki_hais:
+                        # do something with the clicked sprites...
+                        if len(clicked_hais) == 1:
+                            kiru_yotei_no_hai = clicked_hais[0]
                             break
-                    except (KeyError, ValueError):
-                        pass
+                        else:
+                            kiru_yotei_no_hai = None
+
+                    if kiru_yotei_no_hai == None:
+                        continue
                 else:
                     continue
 
+                kiru_hai = strictly_extract(kiru_yotei_no_hai, my_tehai.non_naki_hais)
                 break
-
-        if kiru_hai.number == 5 and kiru_hai.mpsz_type != "z":
-            for i, hai in enumerate(my_tehai.non_naki_hais):
-                if hai is kiru_hai:
-                    del my_tehai.non_naki_hais[i]
-                    break
-        else:
-            my_tehai.non_naki_hais.remove(kiru_hai)
 
         if my_tehai.is_tenpai() and not is_riichi:
             print("ダブルリーチにゃ！" if first else "リーチにゃ！")
             is_riichi = True
+            print(sorted(list(my_tehai.agari_hais())))
 
         if first:
             first = False
 
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
 
 # TODO
 # 1. 손패 역 구현
